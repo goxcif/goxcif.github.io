@@ -1,0 +1,9 @@
+title: 晓晨的个人博客
+permalink: /:title.html
+theme: jekyll-theme-primer
+gems:
+  - jekyll-feed
+  - jekyll-sitemap
+exclude:
+  - Gemfile
+  - Gemfile.lock
