@@ -25,3 +25,14 @@ Compromise between safety and convenience.
 > -- [When Should You Use Implicitly Unwrapped Optionals](https://cocoacasts.com/when-should-you-use-implicitly-unwrapped-optionals/)
 
 尤其在他人修改代码时，可能做出不符合这个假设的改动。
+
+# 说到底，为什么要避免强制解包？
+
+Implicitly Unwrapped Optionals 其实也是强制解包，那到底为什么要避免强制解包？
+
+因为强制解包会造成运行时错误。
+
+> Trying to use ! to access a nonexistent optional value triggers a runtime error. Always make sure that an optional contains a non-nil value before using ! to force-unwrap its value.
+> -- https://developer.apple.com/library/content/documentation/Swift/Conceptual/Swift_Programming_Language/TheBasics.html
+
+那为什么要避免运行时错误呢。。
