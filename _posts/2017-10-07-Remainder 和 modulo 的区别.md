@@ -1,5 +1,5 @@
 ---
-title: "Remainder 和 Modulo 的区别"
+title: "Remainder 和 modulo 的区别"
 ---
 
 | dividend | divisor | div | mod | quot | rem |
