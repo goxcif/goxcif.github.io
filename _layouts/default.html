@@ -27,7 +27,9 @@
       {{ content }}
 
       <br>
-      <p>@goxcif</p>
+      {% unless page.title %}
+        <p>@goxcif</p>
+      {% endunless %}
     </div>
     <script src="{{ "assets/javascript/anchor-js/anchor.min.js" | relative_url }}"></script>
     <script>anchors.add();</script>
