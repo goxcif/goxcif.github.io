@@ -254,6 +254,43 @@ alsoIncrementByTen()
 
 如果一个函数的某个参数被指定为 `@escaping` 的 closure，那这个 closure 中不能隐式引入 self。目的和前面提到的一样，访问成员变量本质都是通过 self 访问的，省略 self 给人一种能直接访问成员变量的感觉，显式 self 访问确保写代码的人明确这一点，从而在需要的时候通过一些办法来避免 strong reference cycle。
 
+备注：
+
+这里官方文档中有一点不一致的地方，不过影响不大。
+
+[The Swift Programming Language (Swift 4): Automatic Reference Counting](https://developer.apple.com/library/content/documentation/Swift/Conceptual/Swift_Programming_Language/AutomaticReferenceCounting.html) 中指出，
+
+> Swift requires you to write self.someProperty or self.someMethod() (rather than just someProperty or someMethod()) whenever you refer to a member of self within a closure. This helps you remember that it’s possible to capture self by accident.
+
+注意其中说的是“within a closure”，也就是，任意 closure 中引用成员变量或者成员方法，都需要通过 self 引用。
+
+事实上，接受**非 @escaping**参数的函数在被调用时，如果实参直接传的是一个 closure（不是通过变量引用，直接写的 closure，或许能叫做 literal value），那么这个 closure 对成员变量或成员方法的引用可以不用 self。
+
+文档中的例子，
+
+```swift
+func someFunctionWithNonescapingClosure(closure: () -> Void) {
+    closure()
+}
+
+class SomeClass {
+    var x = 10
+    func doSomething() {
+        someFunctionWithEscapingClosure { self.x = 100 }
+        someFunctionWithNonescapingClosure { x = 200 }
+    }
+}
+
+let instance = SomeClass()
+instance.doSomething()
+print(instance.x)
+// Prints "200"
+
+completionHandlers.first?()
+print(instance.x)
+// Prints "100"
+```
+
 # Autoclosures
 
 Autoclosures 是在一定情况下自动创建的 closure，用来把作为参数传入函数的表达式包裹在这个 closure 中。Autoclosure 是名词，最常用的说法是一个函数接受一个 autoclosure（a function takes an autoclosure）。
