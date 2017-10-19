@@ -1560,7 +1560,7 @@ _ = S(i: 1)
 
   > multiple levels of optional chaining do not add more levels of optionality to the returned value.
 
-# [Type Casting](https://developer.apple.com/library/content/documentation/Swift/Conceptual/Swift_Programming_Language/TypeCasting.html)
+# [Type Casting](https://developer.apple.com/library/content/documentation/Swift/Conceptual/Swift_Programming_Language/TypeCasting.html) !!!!
 
 * 注意定义，称作类型转换好像也不大妥当，
 
@@ -1595,7 +1595,7 @@ _ = S(i: 1)
 
   可以用 `0 as Int` 或者 `0 as Double`，去匹配。
 
-  如果只匹配类型不匹配值，可以用 `is` 去匹配。
+  如果只匹配类型不匹配值，可以用 `is` 去匹配，如，`case is Double:`。
 
 * Any 可以表示 optional，但是会有警告，所以需要显示的 `as Any`
 
@@ -1605,9 +1605,12 @@ _ = S(i: 1)
   things.append(optionalNumber as Any) // No warning
   ```
 
-* Any 也可以是 optional（`Any？`）。
+* Any 也可以是 optional（`Any?`）。
 
 
+# [Advanced Operators](https://developer.apple.com/library/content/documentation/Swift/Conceptual/Swift_Programming_Language/AdvancedOperators.html)
+
+## Overflow Operators !!!
 
 ---
 
