@@ -108,3 +108,13 @@ a as? B // 返回非 nil 的值
 - 只 `is` 其声明时的类型
 
 - `as?` 和 `as!` 只能转换成更泛化的类型
+
+---
+
+2017-10-21
+
+[The Swift Programming Language (Swift 4): Types](https://developer.apple.com/library/content/documentation/Swift/Conceptual/Swift_Programming_Language/Types.html) 中的 Function Type 一节，并没有对以上测试行为的描述，所以应该算作是未定义行为。
+
+另外补充一点，throws 关键字也是函数类型的一部分，带 throws 关键字的函数类型比不带的更泛化。
+
+> The throws keyword is part of a function’s type, and nonthrowing functions are subtypes of throwing functions. As a result, you can use a nonthrowing function in the same places as a throwing one.
