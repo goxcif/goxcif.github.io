@@ -1,0 +1,229 @@
+---
+title: "Emacs 入门教程学习笔记.md"
+---
+
+有很多东西都学得半途而废，尤其是 Vim 和 Haskell，说到底是没有一直用下去。这些技能本身确实有难度，和自己之前用的又很不一样，不容易坚持用下去。这回打算好好学下 Emacs，坚持用下去，从一开始就用 Emacs 记录学习笔记。
+
+C-x C-c 退出 Emacs session。
+
+按下 ESC 再松开再按别的键相当于 M-<chr>。
+
+退出部分输入的命令，C-g，还能退出正在执行的命令。
+
+C-v 翻页，M-v 往回翻页，这时可以试下用 ESC 替代 M。
+
+翻页会留两行。
+
+C-l 会把光标及其附近的文本置于屏幕中间，重复按会先后置于中间、顶部、底部。
+
+在当前屏幕的最后一行下移一行，会使光标置于屏幕中间。
+
+注意使用 M-f 和 M-b 按单词移动时光标的位置，单词结尾在单词后面的空格，单词开头在第一个字母，在单词中间的时候，先移动到结尾或开头，如果已经在结尾或开头，就移动到下一个单词的结尾或开头。
+
+我以为的技巧，比如按单词向后移，每次都会移动到单词后面的空格，如果想再往前移一位到下一个单词的开始，当然可以用 C-f，但此时因为已经按着 M，可能 M-f 再 M-b 更舒服些。
+
+通常 Meta 用于和语言定义的单位相关的操作，比如单词、句、段落。Control 用于那些和你笔记的内容不相关的基本单位，比如 字符、行等。
+
+C-a C-e 和 M-a M-e 除了移动单位的不同，还有什么不同？
+
+前者移动到行首或行尾时不能继续移动到上一行或下一行。
+
+光标（cursor）的位置（location）叫做 point，现在还不知道这个定义后面会有什么用处。
+
+C-u numeric argument, prefix argument
+
+某些 prefix argument 会使命令做不一样的事情，而不是重复命令，这样的命令还没学。
+
+C-v 和 M-v 对 prefix argument 的解释也不一样，不是滚多少屏，是滚多少行，可问题是我为什么不用 C-n C-p？当光标不在当前屏幕的顶部或者底部时，C-n C-p 就不好滚动屏幕了。
+
+C-x 1 One window 关闭其它窗口。
+
+C-x 开头的命令多与窗口、文件、buffers 相关。
+
+<DEL> M-<DEL> 向前删
+C-d M-d 向后删
+
+C-k M-k 向后删行或句子，而且删完一部分还能接着删。
+
+C-k 删完一行之后再删的是换行符再删才是下一行，所以它的 numeric/prefix argument 的含义不太一样，给多少就删多少行，而不是简单重复 C-k。
+
+C-w kill to mark
+
+C-y yank
+
+连续 C-k 可以全部 C-y 回来，但是中间不能有别的操作，必须连续按。
+
+M-y 接着 C-y 可以循环之前 kill 的。
+
+M-y 还能接收正负参数，只要你愿意。
+
+C-/ undo
+
+
+# 文件
+
+C-x C-f Find a file 此时底部的一行被称作 minibuffer，可以执行普通的 Emacs 编辑命令。可以 C-g 取消操作。也可以 find 一个不存在的文件，然后保存创建一个新文件。
+
+C-x C-s 保存文件。第一次保存文件时，Emacs 会把原文件重命名为“原文件名~”，保存的变动按原文件名保存。
+
+
+# Buffers
+
+你可以通过 C-x C-f find 多个文件，它们都会以 buffer 的形式存储在 Emacs 中。
+
+C-x C-b 列出所有 buffers
+
+每个 buffer 都有名字，有的还有对应的文件名，如果它持有的是一个文件的内容时。
+Emacs 窗口中你看到的任何文字都是某个 buffer 的一部分，包括 buffer list。Buffer list 就没有对应的文件。
+
+C-x 1 one window 关闭其它窗口。
+
+C-x b 通过 buffer 的名字切换 buffer，注意不是 C-x C-b。
+
+一些没有对应文件的 buffers，
+
+- Buffer list 本身也是 buffer
+- *Messages* 包括当前 Emacs session 中所有出现在最下面一行的消息。
+
+C-x s Save some buffers 会问你是否保存未保存的 buffer。
+
+
+# X (eXtend) command
+
+C-x Character eXtend 后跟一个字符或者修饰符加字符
+M-x Named command eXtend 后跟长名字
+
+C-z 是一个临时退出 Emacs 的命令，可以保存之前的 session，这在命令行下才有用，当你想临时退出 Emacs 使用别的程序的时候，可以使用 C-z 临时退出，之后使用 fg 命令或者 `%emacs` 回到之前的 Emacs session。
+
+前面学过的命令，
+
+	C-x C-f		Find file
+	C-x C-s		Save file
+	C-x s		Save some buffers
+	C-x C-b		List buffers
+	C-x b		Switch buffer
+	C-x C-c		Quit Emacs
+	C-x 1		Delete all but one window
+	C-x u		Undo
+
+M-x 后跟长命令，比如 `replace-string`，可以用 tab 自动补全，按回车后先后输入两个参数，只替换光标位置之后的文本。
+
+
+# 自动保存
+
+Emacs 会周期性地自动保存文件为“#原文件名#”，一旦手动保存过，就会删掉这个自动保存的版本。
+如果电脑崩溃了，可以 find 原来的文件名，然后 `recover-file` 恢复自动保存的版本。
+
+
+# Echo Area
+
+如果 Emacs 看你输入一个多字符的命令时比较慢，会在屏幕底部一个叫做 echo area 的区域显示。
+
+Echo area 包含屏幕最底下的一行。
+
+
+# Mode Line
+
+NN% 63% Top Bot All
+
+L731
+
+**- 文件有变动
+--- 没变动
+
+括号里的，比如 Fundamental 是当前的主模式（major mode）。
+
+不同的主模式用于编辑不同的语言或文本。每个主模式会使一些命令的行为不一样。比如同样是注释代码的命令，不同编程语言的语法不一样。
+
+> Each major mode is the name of an extended command, which is how you can switch to that mode.
+
+主模式可以作为扩展命令中的名字，比如 M-x fundamental-mode，M-x text-mode。
+
+查看当前主模式的文档 C-h m。
+
+有主模式就有辅模式（minor mode），辅模式可以独自开关，相互独立，且独立于主模式。
+
+一个辅模式的例子 auto-fill-mode 在单词间自动断行，防止一行太长（默认一行 70 个字符）。
+
+M-x auto-fill-mode 开启或关闭（toggle）。
+
+可以通过 C-x f（不是 C-x C-f）修改默认的一行 70 个字符，两种改法，
+
+- 直接输入 C-x f，输入参数
+- C-u 参数 C-x f
+
+如果是在修改段落中间的部分，auto-fill-mode 不会自动调整，M-q 会重新调整整个段落（re-fill）。
+
+
+# 搜索
+
+搜索一个字符串是一个光标动作命令（cursor motion command），它将移动光标到下一个匹配的位置。
+
+C-s 从当前光标位置开始搜索，随着输入要搜索的字符串，自动定位到第一个匹配，按 <DEL> 在删除要搜索的字符串中最后一个字符的同时，会定位到之前的匹配，倒不是因为按了 <DEL> 的特殊效果，因为要搜索的字符串变了，所以自动定位到离一开始光标位置最近的第一个匹配的地方。
+
+如果 C-s 输入要搜索的字符串之后再按 C-s 会接着定位下一个匹配，此时如果再按 <DEL> 不会修改要搜索的字符串，而是会跳转到前一个匹配位置，直到没有前一个匹配，此时开始删要搜索的字符串。
+
+C-r 只是方向不同。
+
+
+# 多窗口 Multiple Windows
+
+注意 Emacs 中把其它程序中的 windows 叫做 frames。
+
+这节说的是 Emacs 中的 windows。
+
+C-x 2 在下面开个窗口
+C-M-v 滚动另一个窗口，可用于阅读参考文档。
+C-x o （other） 切换到另一个窗口
+C-x 1 关闭其它窗口
+C-x 4 C-f 直接在另一个窗口 find 一个文件（当然你也可以先 C-x 2 打开一个窗口，再 C-x o 跳转过去，再 C-x C-f find 文件）。
+
+
+# Multiple Frames
+
+就是图形界面（graphical displays）下的窗口。在命令行界面（text terminal）下，只能有一个 frame。
+
+M-x make-frame 创建
+M-x delete-frame 删除选中的 frame
+
+
+# Recursive Editing Levels
+
+有时会进入 recursive editing levels，也没说啥时候，反正就是有时候会进入就是了，进入的标志就是主模式名字外面的圆括号（parentheses）外面还有方括号（square brackets），比如 [(Fundamental)] 而不是 (Fundamental)。
+
+退出方法就是 <ESC> <ESC> <ESC>，也可以用来，
+
+* 退出其它窗口，
+* 退出 minibuffer
+
+C-g 不能用来退出 recursive editing levels，因为它只能取消 level 内的命令（canceling commands and arguments WITHIN the recursive editing level）。
+
+
+# 帮助
+
+C-h ? 你都可以获取哪些帮助
+
+C-h c 获取一个按键序列对应命令的名字（name of the function）
+
+C-h k 获取一个按键序列对应命令的完整文档
+
+C-h f 描述一个 function（C-h c 获得的命令的名字）
+
+  也就是说 C-h k 的功能和把一个按键序列交给 C-h c 再将结果交给 C-h f 的效果是差不多的。
+
+C-h a Command Apropos 列出所有包含指定关键词的命令
+
+C-h i Read included Manuals (a.k.a. Info). 打开“*info*” buffer。
+
+  读完入门教程之后，这个应该是主要文档。
+
+  ? Info 的帮助
+
+  m 选择某个 menu
+
+
+# 更多功能
+
+自动补全在 manual 的“Completion”节点，C-h r m Completion
+
+Dired（Directory Editor）像操作文本一样操作文件，在 manual 的“Dired”节点。
