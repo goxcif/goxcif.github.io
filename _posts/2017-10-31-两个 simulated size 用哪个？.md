@@ -2,6 +2,10 @@
 title: "两个 simulated size 用哪个？"
 ---
 
+等等，我为什么要设置 simulated size？
+
+Scroll view 是个不错的场景，如果想在 IB 中看到整个 content area 的话。这个教程中就是这么做的，[A Beginner's Guide to UIScrollView in Swift](https://www.appcoda.com/uiscrollview-introduction/)。
+
 Interface Builder 中选中一个 view controller，右边 inspector 中能找到两个 simulated size，
 
 - Attributes inspector -> Simulated Metrics -> Size -> Freeform
