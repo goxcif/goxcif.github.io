@@ -889,7 +889,7 @@ case let .upc(numberSystem, manufacturer, product, check):
 >
 > * Reference counting allows more than one reference to a class instance.
 
-对这四种情况应该有更深入的理解 ????
+**继承允许功能扩展，type casting 允许运行时检查和解释类实例的类型，析构函数允许释放资源，引用计数允许多个引用。**
 
 * 和类不同，结构体有自动生成的 memberwise 构造器。
 
@@ -958,7 +958,7 @@ case let .upc(numberSystem, manufacturer, product, check):
 
 > In practice, this means that most custom data constructs should be classes, not structures.
 
-那什么情况下选 structures？
+**那什么情况下选 structures？**
 
 * value types or reference types
 
@@ -966,7 +966,7 @@ case let .upc(numberSystem, manufacturer, product, check):
 
 * 是否只是简单数据值的封装
 
-* 其属性是否也是 value types，如果属性是 reference types，自身是 structures 的话，那么自身复制值，属性还是指同一个实例，可能会不符合语义。
+* **其属性是否也是 value types，如果属性是 reference types，自身是 structures 的话，那么自身复制值，属性还是指同一个实例，可能会不符合语义。**
 
 ## Assignment and Copy Behavior for Strings, Arrays, and Dictionaries !!!!
 
@@ -1032,24 +1032,17 @@ case let .upc(numberSystem, manufacturer, product, check):
 
   见 [为什么 lazy stored properties 不能有 property observers]({% post_url 2017-10-15-为什么 lazy stored properties 不能有 property observers %})。
 
+* 什么是属性的覆盖？2018-02-25
+
+  属性的覆盖是 Swift 提供的一种功能。一，当为子类中继承自父类的属性提供 setter 和/或 getter 时，Swift 会替换掉父类中这个属性的实现；二，当为子类中继承自父类的属性提供 observers 时，Swift 会为子类中这个属性生成新的实现，并在子类实现中调用父类实现，同时也调用子类中的 observers。Observers 的调用顺序为：子类 willSet，父类 willSet，父类 didSet，子类 didSet。上面的 二 中专门为 observers 提供了一个解释而不是说 observers 方法存在覆盖是因为不管子类中的 observers 怎样实现父类中的 observers 都会被调用，说明父类中 observers 是被专门调用的。
+
 * 如何给继承的属性加 observers？
 
-  通过 overriding property observers。说是覆盖属性，其实是在当前类中为这个属性加了一层 observers，父类中该属性的 observer 还是会被调用。
+  ~~通过 overriding property observers。说是覆盖属性，其实是在当前类中为这个属性加了一层 observers，父类中该属性的 observer 还是会被调用。~~ 见 [Swift 中的咬文嚼字]({% post_url 2017-10-19-Swift 中的咬文嚼字 %}#overriding-property-getters-and-setters-和-overriding-property-observers)。这里应该说是直接为继承自父类的属性添加 observers（添加 observers 这个行为使得继承自父类的这个属性在修改时会调用当前类中的 observers，算是了修改了父类这个属性的行为，所以算是覆盖了父类的这个属性）。下面的例子说明父类中的 observers 在这种情况下无论如何都会被调用。
 
   ```swift
   class C {
       var i = 42 {
-          willSet {
-              print("willSet i in D")
-          }
-          didSet {
-              print("didSet i in D")
-          }
-      }
-  }
-
-  class D: C {
-      override var i: Int {
           willSet {
               print("willSet i in C")
           }
@@ -1059,13 +1052,24 @@ case let .upc(numberSystem, manufacturer, product, check):
       }
   }
 
+  class D: C {
+      override var i: Int {
+          willSet {
+              print("willSet i in D")
+          }
+          didSet {
+              print("didSet i in D")
+          }
+      }
+  }
+
   let d = D()
   d.i = 3
 
-  // willSet i in C
   // willSet i in D
-  // didSet i in D
+  // willSet i in C
   // didSet i in C
+  // didSet i in D
   ```
 
 * 如何给 computed properties 加 observers？
@@ -1115,13 +1119,17 @@ case let .upc(numberSystem, manufacturer, product, check):
 
   Stored instance properties 文档有说不保证多线程访问时只初始化一次。
 
-  Global properties 文档中没有提。
+  ~~Global properties 文档中没有提。~~ Global properties 也保证多线程访问时只初始化一次。
+  
+    > In Swift, you can use lazily initialized globals or static properties and get the same thread-safety and called-once guarantees as dispatch_once provided.
+    >
+    > --[Swift.org - Migrating to Swift 3](https://swift.org/migration-guide-swift3/)
 
 * static 和 class 关键字的区别？
 
   static 的类属性不能被覆盖。
 
-  class 只能用在 computed type properties 上，可以被覆盖。
+  **class 只能用在 computed type properties 上，可以被覆盖。**
 
 
 # [Methods](https://developer.apple.com/library/content/documentation/Swift/Conceptual/Swift_Programming_Language/Methods.html)
@@ -1159,7 +1167,7 @@ case let .upc(numberSystem, manufacturer, product, check):
 
 * Type methods 中的 self 关键字有什么作用？
 
-  只自己的类型，而不是这个类型的实例。
+  指自己的类型，而不是这个类型的实例。
 
   > This means that you can use self to disambiguate between type properties and type method parameters, just as you do for instance properties and instance method parameters.
 
@@ -1282,7 +1290,7 @@ case let .upc(numberSystem, manufacturer, product, check):
 
   也包括 extensions 里的。
 
-  还可以用在整个 class 上使其不能被继承。
+  **还可以用在整个 class 上使其不能被继承。**
 
 
 # [Initialization](https://developer.apple.com/library/content/documentation/Swift/Conceptual/Swift_Programming_Language/Initialization.html)
@@ -1328,7 +1336,7 @@ _ = S(i: 1)
 
 * 如果手动定义了构造器，就没有 default 构造器和/或 memberwise 构造器了。
 
-* 怎样既保留 default 构造器和 memberwise 构造器，同时又自己定义构造器？
+* **怎样既保留 default 构造器和 memberwise 构造器，同时又自己定义构造器？**
 
   可以在 extension 中定义构造器。
 
@@ -1598,7 +1606,7 @@ _ = S(i: 1)
   }
   ```
 
-  错误提示是 Int 类型的表达式模式不能匹配 Any 类型的值，表达式模式的类型是什么意思???? 等我读了 [Patterns](https://developer.apple.com/library/content/documentation/Swift/Conceptual/Swift_Programming_Language/Patterns.html) 再回来补充。
+  关于 expression pattern，见 [Patterns](https://developer.apple.com/library/content/documentation/Swift/Conceptual/Swift_Programming_Language/Patterns.html)。我认为这里的错误提示是因为无法确定 0 的准确类型，不知道怎么和 0 as Any 这个类型也不确定的值比较。但是显示错误信息的时候又会用 0 的常见类型 Int。
 
   可以用 `0 as Int` 或者 `0 as Double`，去匹配。
 
@@ -1647,142 +1655,3 @@ struct 在一些特殊情况下会被认为是安全的，但对用户来说不�
 # [Advanced Operators](https://developer.apple.com/library/content/documentation/Swift/Conceptual/Swift_Programming_Language/AdvancedOperators.html)
 
 ## Overflow Operators !!!
-
----
-
-API Design Guidelines 2017-09-30
-
-# Argument Labels
-
-* 如果几个参数没区别，忽略标签。
-
-  > **Omit all labels when arguments can’t be usefully distinguished**, e.g. `min(number1, number2)`, `zip(sequence1, sequence2)`.
-
-* 构造方法如果是执行无损转换，忽略第一个标签。
-
-  > **In initializers that perform value preserving type conversions, omit the first argument label**, e.g. `Int64(someUInt32)`
-
-  - 之后的参数标签还得留
-
-  - 如果是有损转换，建议通过标签强调这是有损的。
-
-    ```swift
-    extension UInt32 {
-      /// Creates an instance having the specified `value`.
-      init(_ value: Int16)            ← Widening, so no label
-      /// Creates an instance having the lowest 32 bits of `source`.
-      init(truncating source: UInt64)
-      /// Creates an instance having the nearest representable
-      /// approximation of `valueToApproximate`.
-      init(saturating valueToApproximate: UInt64)
-    }
-    ```
-
-  - 注意：前文还提到，
-
-    > Initializer and factory method calls should form a phrase that does not include the first argument, e.g. `x.makeWidget(cogCount: 47)`.
-
-    不管是无损或有损转换，构造器所构成的短语不包含第一个参数。
-
-* 在方法所构成的短语中，第一个参数构成了介词短语的一部分，这时需要给第一个参数标签。通常这个标签也应该包含这个介词。
-
-  > **When the first argument forms part of a [prepositional phrase](https://en.wikipedia.org/wiki/Adpositional_phrase#Prepositional_phrases), give it an argument label**. The argument label should normally begin at the [preposition](https://en.wikipedia.org/wiki/Preposition), e.g. `x.removeBoxes(havingLength: 12)`.
-
-  我并不理解这个例子中的 length 构成了介词短语的一部分。
-
-  有一个例外情况下，介词不放在标签中，而是应该放在前面的函数主体，这个情况是前两个或者前几个参数表示差不多的东西。
-
-  An exception arises when the first two arguments represent parts of a single abstraction.
-
-      a.move(**toX:** b, **y:** c) a.fade(**fromRed:** b, **green:** c, **blue:** d)
-
-  In such cases, begin the argument label _after_ the preposition, to keep the abstraction clear.
-
-      a.moveTo(**x:** b, **y:** c) a.fadeFrom(**red:** b, **green:** c, **blue:** d)
-
-* 此外，如果第一个参数构成了一个普通的短语的一部分（不是介词短语），则标签和函数主体放一起。
-
-  **Otherwise, if the first argument forms part of a grammatical phrase, omit its label**, appending any preceding words to the base name, e.g. `x.addSubview(y)`
-
-  这条规则意味着，如果第一个参数没有构成短语，就应该有标签。
-
-  This guideline implies that if the first argument _doesn’t_ form part of a grammatical phrase, it should have a label.
-
-    ```swift
-    view.dismiss(**animated:** false)
-    let text = words.split(**maxSplits:** 12)
-    let studentsByName = students.sorted(**isOrderedBefore:** Student.namePrecedes)
-    ```
-
-  原文这段被我忽略了，
-
-  Note that it’s important that the phrase convey the correct meaning. The following would be grammatical but would express the wrong thing.
-
-    view.dismiss(false) Don't dismiss? Dismiss a Bool?
-    words.split(12) Split the number 12?
-
-  我觉得这两个例子中的第一个参数都没有构成短语，本就不该去掉标签，本来就不符合前面提到的标准。而原文却给出了一种错觉，好像这两个例子符合标准，但没有表达正确的意思。
-
-  如果第一个参数有默认值，也就是说在调用函数时这个参数可以忽略，这种情况当然不能构成短语，所以要加标签。
-
-* 其它参数都要加标签。
-
----
-
-官方文档实在难读，下面我按照自己的思路捋一遍。
-
-首先解决一个文档叙述中出现多次的描述，
-
-  the (first) argument forms (part of) a (prepositional/grammatical) phrase
-
-这段话的前提是，前文提到的，
-
-> Prefer method and function names that make use sites form grammatical English phrases.
-
-就是让方法或函数在被调用时可以形成一个英语语法短语。
-
-这个多次出现的描述中所说的短语就是这个意思，这个短语是否包含某个参数**取决于你如何定义这个函数**。
-
-下面正式整理这段规则。总的来说，这段的目的就是解决什么时候给函数（方法）加标签（argument label）。
-
-* 如果有多个参数且多个参数没什么区别，就都省略标签。e.g. `min(number1, number2)`, `zip(sequence1, sequence2)`.
-
-* 除了第一条规则，所有不是第一个的参数都得加标签。
-
-* 如果是构造函数（包括工厂方法），调用时形成的短语不应该包含第一个参数。
-
-  * 基本上就是构造函数（或工厂方法）的第一个参数不加标签。
-
-  * 但有个例外，如果是丢失精度（narrowing 或称非单射）的类型转换，则通过标签描述。
-
-    ```swift
-    extension UInt32 {
-      /// Creates an instance having the specified `value`.
-      init(_ value: Int16)            ← Widening, so no label
-      /// Creates an instance having the lowest 32 bits of `source`.
-      init(truncating source: UInt64)
-      /// Creates an instance having the nearest representable
-      /// approximation of `valueToApproximate`.
-      init(saturating valueToApproximate: UInt64)
-    }
-    ```
-
-* 如果不是构造函数
-
-  * 如果第一个参数有默认值，则函数命名不应该使其在被调用时形成的短语中包含第一个参数，进而按照下面的“如果在函数调用时形成的短语没有包含第一个参数，则需要加标签”，第一个参数应该有标签。
-
-  * 如果在函数调用时形成的短语包含了第一个参数
-
-    * 如果第一个参数构成了介词短语的一部分，介词和标签放一起。e.g. `x.removeBoxes(havingLength: 12)`.
-
-      * 除非，前两个参数表示的是一类东西（the first two arguments represent parts of a single abstraction）。这种情况，介词前移，和函数主体放一起。
-
-    * 如果第一个参数不是介词短语的一部分，而只是一个符合语法的短语，那么，标签前移到函数主体（这是我的理解，原文 omit its label, appending any preceding words to the base name）。e.g. `x.addSubview(y)`.
-
-  * 如果在函数调用时形成的短语没有包含第一个参数，则需要加标签。
-
-
-
-
-
-
