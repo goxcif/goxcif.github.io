@@ -175,15 +175,19 @@ Double 和 Float 都可以的时候，用 Double。
 
 * Half-open range 很适合用于遍历数组，因为它不包括右边界（数组长度）。但其实 one-sided range 更合适，都不用考虑数组长度。
 
-* Half-open range 的用法很符合直觉，没有左边界的不能用在 for in 语句中，没有右边界的要考虑中什么时候终止 iteration。
+* One-sided range 的用法很符合直觉，没有左边界的不能用在 for in 语句中，没有右边界的要考虑什么时候终止 iteration。但是可以用在数组上，对于没有左边界的 range，用在数组上时就是从 0 开始到这个 range 的右边界，对于没有右边界的 range 同理到数组的末尾。
 
-### cs193p lecture 3 slides
+### cs193p_F17 (iOS 11) lecture 3 slides
+
+for-in 语句需要作用在 CountableRange 上，但是 0.5...15.25 只是 Range，不是 CountableRange。需要用 stride:from:to:/by: 方法。
+
+### cs193p (iOS 10) lecture 3 slides
 
 * Range vs CountableRange
 
-  * 如果上下届是 Int 类型，则是 CountableRange。
+  * 如果上下界是 Int 类型，则是 CountableRange。
 
-    * 准确地说，上下届是 "strideable by Int"。
+    * 准确地说，上下界是 "strideable by Int"。
 
     * 更准确地，CountableRange 的类型如下，
 
@@ -195,7 +199,7 @@ Double 和 Float 都可以的时候，用 Double。
 
       注：for-in 语句中要求 `in` 后面是 `Sequence`，见 [Swift Language Reference - Statements](https://developer.apple.com/library/content/documentation/Swift/Conceptual/Swift_Programming_Language/Statements.html)。
 
-* 使用 `..<` 或 `...` 创建 range 时，如果下界大于上届，会出现运行时错误，因为本质上 `..<` 和 `...` 只是 Range 和 ClosedRange 的特殊语法，本身并没有被编译器验证。
+* 使用 `..<` 或 `...` 创建 range 时，如果下界大于上界，会出现运行时错误，因为本质上 `..<` 和 `...` 只是 Range 和 ClosedRange 的特殊语法，本身并没有被编译器验证。
 
 * 使用 range 访问数组时越界也会产生运行时错误。
 
@@ -373,7 +377,7 @@ Extended grapheme clusters 可能由多个 Unicode 标量组成，这就意味�
 * 如何在一个字符串的某个位置处插入字符或者字符串？
 
   - `insert(_:at:)` 插入字符
-  - `insert(contentsOf:at:)` 插入字符串，或者是 String.CharacterView（通过字符串的 `characters: String.CharacterView` 获取，可以进一步对其做 range 的下标操作。从 Swift 4 (Xcode 9) 开始，有些操作已经可以直接用在 String 上了比如，`func index(of: Character)` ）。
+  - `insert(contentsOf:at:)` 插入字符串，~~或者是 String.CharacterView（通过字符串的 `characters: String.CharacterView` 获取，可以进一步对其做 range 的下标操作。从 Swift 4 (Xcode 9) 开始，有些操作已经可以直接用在 String 上了比如，`func index(of: Character)` ）。~~ Swift 4 中该方法已弃用。
 
 * String、Array、Dictionary、Set 都实现了 `RangeReplaceableCollection` 协议，该协议包含了哪些方法？
 
@@ -430,7 +434,7 @@ Extended grapheme clusters 可能由多个 Unicode 标量组成，这就意味�
   // threeDoubles is of type [Double], and equals [0.0, 0.0, 0.0]
   ```
 
-* 怎样把数组中的连续 3 个元素替换成某 2 个元素？
+* **怎样把数组中的连续 3 个元素替换成某 2 个元素？**
 
   ```swift
   shoppingList[4...6] = ["Bananas", "Apples"]
@@ -447,6 +451,7 @@ Extended grapheme clusters 可能由多个 Unicode 标量组成，这就意味�
       print("Item \(index + 1): \(value)")
   }
   ```
+
 ## Sets (ignore first NOTE box in this section) !!!
 
 ### Hashable
@@ -455,7 +460,7 @@ Extended grapheme clusters 可能由多个 Unicode 标量组成，这就意味�
 
 * Swift 中的基础类型（String，Int，Double，Bool）默认都实现了该协议。没有关联值（associated value）的 enum 默认也实现了该协议。
 
-* 注意！`hashValue` **不要求**在不同程序、或者同一程序的不同执行下保持相同。当然，在作为使用者调用 `hashValue` 时，也**不能期待**它保持相同。
+* 注意！`hashValue` **不要求**在不同程序、或者同一程序的不同执行下保持相同。不要存储一个 hash 值在以后执行时使用。
 
 * 实现该协议除了需要实现 `hashValue` 的 gettable 属性，因为 `Hashable` 协议继承了 `Equatable`，还需要实现 `Equatable` 的 (==) 操作。
 
@@ -465,7 +470,7 @@ Extended grapheme clusters 可能由多个 Unicode 标量组成，这就意味�
 var favoriteGenres: Set<String> = ["Rock", "Classical", "Hip hop"]
 ```
 
-这里的 `Set` 必须现实声明，但因为后面的数组中的元素都是 String，Swift 可以推断出这个集合中元素的类型，所以可以省去 `<String>`。
+这里的 `Set` 必须显式声明，但因为后面的数组中的元素都是 String，Swift 可以推断出这个集合中元素的类型，所以可以省去 `<String>`。
 
 ```swift
 var favoriteGenres: Set = ["Rock", "Classical", "Hip hop"]
@@ -560,7 +565,7 @@ var favoriteGenres: Set = ["Rock", "Classical", "Hip hop"]
   // (0, 5, 10, 15 ... 45, 50, 55)
   ```
 
-* 怎样没 3 个取 1 个，**包括**最后一个
+* 怎样每 3 个取 1 个，**包括**最后一个
 
   `stride(from:through:by:)`
 
@@ -598,6 +603,8 @@ var favoriteGenres: Set = ["Rock", "Classical", "Hip hop"]
 * 神奇的 fallthrough
 
   > The fallthrough keyword does not check the case conditions for the switch case that it causes execution to fall into. The fallthrough keyword simply causes code execution to move directly to the statements inside the next case (or default case) block, as in C’s standard switch statement behavior.
+  
+  在一个 case 中遇到 fallthrough 后会直接进入下面的 case 中，不需要检查是否符合下一个 case 的条件，这符合 C 语言中的语义。最好下一个 case 正好是 default，这样不容易乱。
 
 ---
 
@@ -1606,6 +1613,35 @@ _ = S(i: 1)
   ```
 
 * Any 也可以是 optional（`Any?`）。
+
+
+# [Memory Safety](https://developer.apple.com/library/content/documentation/Swift/Conceptual/Swift_Programming_Language/MemorySafety.html)
+
+Swift 提供的内存访问冲突检测机制，只用在单线程中，单线程中出现的冲突 Swift 能够保证产生编译错误或者运行时错误。
+
+文中并没有提到运行时错误，可能大部分错误都能在编译时产生。
+
+内存访问的几个特征：
+
+- 读或写
+
+- 访问的持续时间
+
+- 内存位置
+
+针对这三个特征，两个产生冲突的内存访问必须满足下面的所有条件：
+
+- 只是有一个写
+
+- 访问持续时间有重合
+
+- 访问内存同一位置
+
+struct 在一些特殊情况下会被认为是安全的，但对用户来说不重要。
+
+
+
+
 
 
 # [Advanced Operators](https://developer.apple.com/library/content/documentation/Swift/Conceptual/Swift_Programming_Language/AdvancedOperators.html)
