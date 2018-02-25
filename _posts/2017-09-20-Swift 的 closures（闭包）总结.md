@@ -124,7 +124,7 @@ func makeIncrementer(forIncrement amount: Int) -> () -> Int {
 
 > If you assign a closure to a property of a class instance, and the closure captures that instance by referring to the instance or its members, you will create a strong reference cycle between the closure and the instance. Swift uses capture lists to break these strong reference cycles. For more information, see [Strong Reference Cycles for Closures](https://developer.apple.com/library/content/documentation/Swift/Conceptual/Swift_Programming_Language/AutomaticReferenceCounting.html#//apple_ref/doc/uid/TP40014097-CH20-ID56).
 
-如果把一个 closure 赋值给一个实例的属性，并且这个 closure 中引用了这个实例本身或者实例的成员变量，这时，就会在这个 closure 和这个实例之间形成强引用循环。
+如果把一个 closure 赋值给一个实例的属性，并且这个 closure 中引用了这个实例本身或者实例的成员变量，这时，就会在这个 closure 和**这个实例**之间形成强引用循环。
 
 这里对在 closure 中引用成员变量必须写出 self 有了明确的理解。实际上，对成员变量的访问，其实都是通过 self 定位的，平时省去 self 不写，让人有种直接访问了成员变量的感觉，但实际上仍然是有对 self 的访问的，这点在 closures 中是不能忽略的，你必须知道 closures 中对成员变量的访问是通过 self 的，从而明确这个 closure 是捕获了 self，**而非这个成员变量**。
 
@@ -206,7 +206,7 @@ func test() { // Wrap the code in the function to make sure var `i` is not a glo
     print("Before closure declaration: \(CFGetRetainCount(i))")
 
     let closure = {
-        print("In closure: \(CFGetRetainCount(i))") // In fact, the var i is not captured, because it's a global var.
+        print("In closure: \(CFGetRetainCount(i))")
     }
 
     print("Before closure calling: \(CFGetRetainCount(i))")
@@ -248,11 +248,11 @@ alsoIncrementByTen()
 
 对于这个函数来说，被传入的 closure 不一定总是 escape，可能在某些情况下不会 escape，但不管怎样，只要传入的 closure 有 escape 的可能，这个参数就得被标记为 `@escaping`。
 
-其实这个函数也挺“冤”的，它只是没有执行这个 closure，并不是做了什么特殊的事情了，像是“不作为”。这也就不难理解在早先的 Swift 版本中，标记的是 `@nonescaping`。
+~~其实这个函数也挺“冤”的，它只是没有执行这个 closure，并不是做了什么特殊的事情了，像是“不作为”。这也就不难理解在早先的 Swift 版本中，标记的是 `@nonescaping`。~~ 这个函数（接受这个 closure 的函数）在返回后才执行 closure，这个操作还是挺特殊的，标记它也是应该的。
 
 常见的情况是，把这个传入的 closure 保存在了函数之外，在之后的某一时刻通过其它方式调用，比如 completionHandler。
 
-如果一个函数的某个参数被指定为 `@escaping` 的 closure，那这个 closure 中不能隐式引入 self。目的和前面提到的一样，访问成员变量本质都是通过 self 访问的，省略 self 给人一种能直接访问成员变量的感觉，显式 self 访问确保写代码的人明确这一点，从而在需要的时候通过一些办法来避免 strong reference cycle。
+如果一个函数的某个参数被指定为 `@escaping` 的 closure，那这个 closure 中不能隐式引入 self。目的和前面提到的一样，访问成员变量本质都是通过 self 访问的，省略 self 给人一种能直接访问成员变量的感觉，显式 self 访问确保写代码的人明确这一点，从而在需要的时候通过一些办法来避免 strong reference cycle。如果正在调用的函数接受的 closure 是 nonescaping 的，我们就可以放心调用，因为只要这个函数结束了，传入的 closure 也一定会被释放，不会造成循环引用的问题；如果是 escaping 的，我们就得担心了，这个 closure 之后什么时候还能被调用，说明一定存在哪了，有循环引用的可能。
 
 备注：
 
